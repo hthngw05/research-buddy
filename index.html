@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Research-Buddy | PICO Project Manager</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Dialogflow Messenger -->
+    <link rel="stylesheet"
+        href="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/themes/df-messenger-default.css">
+    <script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
+</head>
+
+<body>
+
+    <header>
+        <div class="container">
+            <div class="brand">
+                <!-- Simple Book Icon SVG -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+                Research-Buddy
+            </div>
+
+            <nav>
+                <a href="#how-it-works" onclick="scrollToSection('how-it-works')">How it Works</a>
+                <a href="#features" onclick="scrollToSection('features')">Features</a>
+                <a href="#benefits" onclick="scrollToSection('benefits')">Benefits</a>
+            </nav>
+
+            <div class="auth-controls">
+                <span id="user-status" class="user-status"></span>
+                <button id="login-btn" class="btn btn-primary" onclick="googleLogin()">Login with Google</button>
+                <button id="logout-btn" class="btn btn-outline" onclick="signOut()" style="display:none;">Sign
+                    Out</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="container hero">
+            <div class="hero-content">
+                <span class="tagline">For Final-Year Health Sciences</span>
+                <h1>Research is hard.<br>Getting started shouldn't be.</h1>
+                <p class="hero-lead">
+                    Stop staring at a blank page. Break down your clinical question into P, I, C, and O, and generate a
+                    clear research title in minutes.
+                </p>
+                <button class="btn btn-primary" onclick="scrollToSection('how-it-works')">See how it works</button>
+            </div>
+
+            <div class="hero-visual">
+                <div class="paper-card">
+                    <h3>My Research Project #1</h3>
+                    <p style="font-size: 0.9rem; color: #6b7280; font-family: 'Courier New', monospace;">
+                        In <strong>[P]</strong> elderly patients with dementia...<br>
+                        Does <strong>[I]</strong> music therapy...<br>
+                        Compared to <strong>[C]</strong> standard care...<br>
+                        Improve <strong>[O]</strong> cognitive function?
+                    </p>
+                    <div
+                        style="margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed #e5e7eb; font-size: 0.8rem; color: #4f46e5; font-weight: 600;">
+                        ✓ Saved to Student Locker
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="container features-section">
+            <div class="section-header">
+                <h2>Core Capabilities</h2>
+                <p>Everything you need to go from "confused student" to "research proposal".</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" style="width:24px;height:24px">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                        </svg>
+                    </div>
+                    <h3>PICO-Guided Refinement</h3>
+                    <p>Struggling to focus? The bot uses the PICO framework (Population, Intervention, Comparison,
+                        Outcome) to turn vague ideas into sharp clinical questions.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" style="width:24px;height:24px">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                        </svg>
+                    </div>
+                    <h3>Expert Guidance PDFs</h3>
+                    <p>Access curated health science PDFs instantly. Get explanations on study designs, ethics, and
+                        methodology without leaving the chat.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" style="width:24px;height:24px">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125" />
+                        </svg>
+                    </div>
+                    <h3>Project Tracking</h3>
+                    <p>Save multiple projects to your personal database. List, edit, or delete them anytime. Your
+                        progress is saved for your next session.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" style="width:24px;height:24px">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                    </div>
+                    <h3>PubMed Integration</h3>
+                    <p>Don't just plan—verify. The bot retrieves relevant PubMed articles based on your PICO inputs to
+                        ensure your topic has literature.</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 3rem;">
+                <button class="btn btn-primary" onclick="googleLogin()">Start Your Project</button>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="timeline-section">
+            <div class="containerWrapper">
+                <div class="section-header">
+                    <h2>How it Works</h2>
+                    <p>A simple, structured workflow designed for research methodology.</p>
+                </div>
+
+                <div class="container timeline">
+                    <div class="timeline-step">
+                        <span class="step-number">01</span>
+                        <h3>Login & Start</h3>
+                        <p>Sign in to unlock the assistant. It creates a secure "Locker" for your work.</p>
+                    </div>
+
+                    <div class="timeline-step">
+                        <span class="step-number">02</span>
+                        <h3>PICO Structure</h3>
+                        <p>Converse with the bot. It guides you to define Population, Intervention, Comparison, and
+                            Outcome.</p>
+                    </div>
+
+                    <div class="timeline-step">
+                        <span class="step-number">03</span>
+                        <h3>Save & Source</h3>
+                        <p>Save your question. The bot then pulls initial PubMed articles to get you started.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="benefits" class="container" style="padding: 4rem 1rem;">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Why Students Choose Research-Buddy</h2>
+
+            <div class="benefits-card">
+                <table class="benefits-table">
+                    <thead>
+                        <tr>
+                            <th>Benefit</th>
+                            <th>Impact on Students</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="benefit-title">Reduces Research Anxiety</td>
+                            <td>Breaks down complex methodology into friendly chat, addressing common barriers in health
+                                science.</td>
+                        </tr>
+                        <tr>
+                            <td class="benefit-title">Scaffolds Early Projects</td>
+                            <td>Guides you from a vague idea to a testable hypothesis without overwhelming details.</td>
+                        </tr>
+                        <tr>
+                            <td class="benefit-title">24/7 Expert Access</td>
+                            <td>Instantly pulls relevant papers and methodology worksheets whenever you're ready to
+                                work.</td>
+                        </tr>
+                        <tr>
+                            <td class="benefit-title">Personalized Tracking</td>
+                            <td>Never lose your train of thought. Your project state is saved across sessions.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="cta-container">
+                <p class="cta-text">Ready to define your research question?</p>
+                <button class="btn btn-primary btn-large" onclick="googleLogin()">Start Your Project Now</button>
+            </div>
+        </section>
+
+        <section id="about" class="container about-context">
+            <div class="about-box">
+                <h4 style="font-size: 1rem; margin-bottom: 0.5rem;">Academic Context</h4>
+                <p style="margin-bottom: 0; font-size: 0.85rem;">
+                    Research-Buddy is a coursework prototype using Conversational Agents.
+                    It supports, but does not replace, supervisor guidance.
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Research-Buddy Prototype. Built for academic purposes.</p>
+        </div>
+    </footer>
+
+    <!-- App Logic -->
+    <script src="script.js"></script>
+
+    <!-- Chatbot Widget configuration -->
+    <df-messenger project-id="research-buddy-chatbot" agent-id="0ba8de36-a460-406b-98bf-6f74248ccd47" language-code="en"
+        intent="WELCOME" max-query-length="-1" storage-option="none">
+        <df-messenger-chat-bubble chat-title="Research‑Buddy"></df-messenger-chat-bubble>
+    </df-messenger>
+
+</body>
+
+</html>
