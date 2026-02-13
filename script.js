@@ -13,11 +13,20 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// DOM Elements
-const loginBtn = document.getElementById('login-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const userStatus = document.getElementById('user-status');
-const dfMessenger = document.querySelector('df-messenger');
+// DOM Elements & State
+let dfMessenger = null;
+let currentUser = null;
+
+// Wait for Dialogflow to be ready
+window.addEventListener('df-messenger-loaded', () => {
+    dfMessenger = document.querySelector('df-messenger');
+    console.log("Dialogflow Messenger loaded");
+
+    // If we already have a user from auth listener capable of running before this
+    if (currentUser) {
+        updateBot(currentUser);
+    }
+});
 
 // Auth Functions
 function googleLogin() {
@@ -26,12 +35,12 @@ function googleLogin() {
         .then(async (result) => {
             const user = result.user;
             await createUserLocker(user);
-            updateUI(user);
-            console.log("Logged in as:", user.displayName);
+            // Auth state listener will handle UI update
         })
         .catch((error) => {
             console.error("Login Error:", error);
-            userStatus.innerText = "Login failed. Please try again.";
+            const userStatus = document.getElementById('user-status');
+            if (userStatus) userStatus.innerText = "Login failed. Please try again.";
         });
 }
 
@@ -39,12 +48,10 @@ function signOut() {
     auth.signOut()
         .then(() => {
             console.log("User signed out");
-            updateUI(null);
             // Clear Dialogflow session
             if (dfMessenger && dfMessenger.clearStorage) {
                 dfMessenger.clearStorage();
             }
-            // Force reload to clear any lingering state
             window.location.reload();
         })
         .catch((error) => {
@@ -52,7 +59,6 @@ function signOut() {
         });
 }
 
-// Firestore: Create "Locker" for new users
 async function createUserLocker(user) {
     const userRef = db.collection('users').doc(user.uid);
     try {
@@ -72,6 +78,10 @@ async function createUserLocker(user) {
 
 // UI Updates
 function updateUI(user) {
+    const loginBtn = document.getElementById('login-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const userStatus = document.getElementById('user-status');
+
     if (user) {
         // Logged In
         if (loginBtn) loginBtn.style.display = 'none';
@@ -81,32 +91,44 @@ function updateUI(user) {
             userStatus.style.opacity = '1';
         }
 
-        // Show Dialogflow
-        if (dfMessenger) {
-            dfMessenger.style.display = 'block';
-            // Pass user data to bot
-            dfMessenger.setQueryParameters({
-                parameters: {
-                    "user_id": user.uid,
-                    "user_name": user.displayName
-                }
-            });
-        }
+        // Update Bot (if loaded)
+        updateBot(user);
+
     } else {
         // Logged Out
         if (loginBtn) loginBtn.style.display = 'inline-flex';
         if (logoutBtn) logoutBtn.style.display = 'none';
-        if (userStatus) userStatus.innerText = ""; // Hide status text when logged out
+        if (userStatus) userStatus.innerText = "";
 
-        // Hide Dialogflow
+        // Hide Bot
         if (dfMessenger) {
             dfMessenger.style.display = 'none';
         }
     }
 }
 
+// Helper to update Bot Context
+function updateBot(user) {
+    if (!dfMessenger) return; // Wait for load event
+
+    dfMessenger.style.display = 'block';
+
+    // Pass user data to bot
+    // We use a slight delay to ensure the component is ready to receive events
+    setTimeout(() => {
+        dfMessenger.setQueryParameters({
+            parameters: {
+                "user_id": user.uid,
+                "user_name": user.displayName
+            }
+        });
+        console.log("Updated Bot Context for:", user.displayName);
+    }, 500);
+}
+
 // Auth State Listener
 auth.onAuthStateChanged((user) => {
+    currentUser = user; // Store for late-loading bot
     updateUI(user);
 });
 
@@ -118,7 +140,7 @@ function scrollToSection(id) {
     }
 }
 
-// Expose functions to window for HTML onclick events
+// Expose functions global
 window.googleLogin = googleLogin;
 window.signOut = signOut;
 window.scrollToSection = scrollToSection;
