@@ -379,6 +379,8 @@ df-messenger {
     position: fixed;
     bottom: 20px;
     right: 20px;
+    display: none;
+    /* Hidden until logged in */
     --df-messenger-font-color: var(--text-primary);
     --df-messenger-font-family: var(--font-sans);
     --df-messenger-chat-background: var(--bg-color);
