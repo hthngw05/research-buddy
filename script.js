@@ -13,21 +13,6 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// DOM Elements & State
-let dfMessenger = null;
-let currentUser = null;
-
-// Wait for Dialogflow to be ready
-window.addEventListener('df-messenger-loaded', () => {
-    dfMessenger = document.querySelector('df-messenger');
-    console.log("Dialogflow Messenger loaded");
-
-    // If we already have a user from auth listener capable of running before this
-    if (currentUser) {
-        updateBot(currentUser);
-    }
-});
-
 // Auth Functions
 function googleLogin() {
     const provider = new firebase.auth.GoogleAuthProvider();
@@ -35,7 +20,6 @@ function googleLogin() {
         .then(async (result) => {
             const user = result.user;
             await createUserLocker(user);
-            // Auth state listener will handle UI update
         })
         .catch((error) => {
             console.error("Login Error:", error);
@@ -48,7 +32,8 @@ function signOut() {
     auth.signOut()
         .then(() => {
             console.log("User signed out");
-            // Clear Dialogflow session
+            const dfMessenger = document.querySelector('df-messenger');
+            // Clear storage if available
             if (dfMessenger && dfMessenger.clearStorage) {
                 dfMessenger.clearStorage();
             }
@@ -81,6 +66,7 @@ function updateUI(user) {
     const loginBtn = document.getElementById('login-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const userStatus = document.getElementById('user-status');
+    const dfMessenger = document.querySelector('df-messenger');
 
     if (user) {
         // Logged In
@@ -91,7 +77,7 @@ function updateUI(user) {
             userStatus.style.opacity = '1';
         }
 
-        // Update Bot (if loaded)
+        // Activate Bot
         updateBot(user);
 
     } else {
@@ -107,28 +93,46 @@ function updateUI(user) {
     }
 }
 
-// Helper to update Bot Context
+// Helper to update Bot Context and Visibility
 function updateBot(user) {
-    if (!dfMessenger) return; // Wait for load event
+    const dfMessenger = document.querySelector('df-messenger');
 
-    dfMessenger.style.display = 'block';
+    if (!dfMessenger) {
+        console.warn("df-messenger element not found in DOM yet. Retrying...");
+        setTimeout(() => updateBot(user), 500);
+        return;
+    }
 
-    // Pass user data to bot
-    // We use a slight delay to ensure the component is ready to receive events
-    setTimeout(() => {
-        dfMessenger.setQueryParameters({
-            parameters: {
-                "user_id": user.uid,
-                "user_name": user.displayName
-            }
-        });
-        console.log("Updated Bot Context for:", user.displayName);
-    }, 500);
+    // Ensure the web component is fully upgraded
+    customElements.whenDefined('df-messenger').then(() => {
+
+        // Show the bot
+        dfMessenger.style.display = 'block';
+
+        // Set parameters
+        // We wrap this in a try-catch to handle cases where the API isn't ready
+        try {
+            dfMessenger.setQueryParameters({
+                parameters: {
+                    "user_id": user.uid,
+                    "user_name": user.displayName
+                }
+            });
+
+            // Set intent to trigger WELCOME now that params are set
+            dfMessenger.setAttribute("intent", "WELCOME");
+
+            console.log("Bot Parameters Set:", user.displayName);
+        } catch (e) {
+            console.error("Error setting bot parameters:", e);
+            // Retry once if failed
+            setTimeout(() => updateBot(user), 1000);
+        }
+    });
 }
 
 // Auth State Listener
 auth.onAuthStateChanged((user) => {
-    currentUser = user; // Store for late-loading bot
     updateUI(user);
 });
 
