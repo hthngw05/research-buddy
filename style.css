@@ -387,6 +387,7 @@ df-messenger {
     --df-messenger-message-user-background: #e0e7ff;
     /* Indigo-100 */
     --df-messenger-message-bot-background: #ffffff;
+    --df-messenger-chat-window-width: 480px;
 }
 
 /* Benefits Section */
