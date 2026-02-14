@@ -68,6 +68,9 @@ function updateUI(user) {
     const userStatus = document.getElementById('user-status');
     const dfMessenger = document.querySelector('df-messenger');
 
+    // Always ensure bot is visible/updated
+    updateBot(user);
+
     if (user) {
         // Logged In
         if (loginBtn) loginBtn.style.display = 'none';
@@ -77,19 +80,11 @@ function updateUI(user) {
             userStatus.style.opacity = '1';
         }
 
-        // Activate Bot
-        updateBot(user);
-
     } else {
         // Logged Out
         if (loginBtn) loginBtn.style.display = 'inline-flex';
         if (logoutBtn) logoutBtn.style.display = 'none';
         if (userStatus) userStatus.innerText = "";
-
-        // Hide Bot
-        if (dfMessenger) {
-            dfMessenger.style.display = 'none';
-        }
     }
 }
 
@@ -109,24 +104,27 @@ function updateBot(user) {
         // Show the bot
         dfMessenger.style.display = 'block';
 
-        // Set parameters
-        // We wrap this in a try-catch to handle cases where the API isn't ready
+        // Set parameters if user exists
+        if (user) {
+            try {
+                dfMessenger.setQueryParameters({
+                    parameters: {
+                        "user_id": user.uid,
+                        "user_name": user.displayName
+                    }
+                });
+                console.log("Bot Parameters Set:", user.displayName);
+            } catch (e) {
+                console.error("Error setting bot parameters:", e);
+            }
+        }
+
+        // Always trigger the WELCOME intent
+        // This makes the bot greet the user (or show a notification) immediately
         try {
-            dfMessenger.setQueryParameters({
-                parameters: {
-                    "user_id": user.uid,
-                    "user_name": user.displayName
-                }
-            });
-
-            // Set intent to trigger WELCOME now that params are set
             dfMessenger.setAttribute("intent", "WELCOME");
-
-            console.log("Bot Parameters Set:", user.displayName);
         } catch (e) {
-            console.error("Error setting bot parameters:", e);
-            // Retry once if failed
-            setTimeout(() => updateBot(user), 1000);
+            console.error("Error triggering WELCOME intent:", e);
         }
     });
 }
